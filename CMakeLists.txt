@@ -310,8 +310,6 @@ set(RAJA_DIR "${CMAKE_INSTALL_PREFIX}/raja")
 # set(RAJA_URL "${TPL_MIRROR_DIR}/RAJA-v2022.03.0.tar.gz")
 # set(RAJA_URL "${TPL_MIRROR_DIR}/RAJA-feature-cmake-config-reorg.tar.gz")
 set(RAJA_URL "${TPL_MIRROR_DIR}/RAJA-v2022.10.4.tar.gz")
-
-
 message(STATUS "Building RAJA found at ${RAJA_URL}")
 
 ExternalProject_Add( raja
@@ -381,7 +379,7 @@ ExternalProject_Add( chai
                                 -D CMAKE_POSITION_INDEPENDENT_CODE=${CMAKE_POSITION_INDEPENDENT_CODE}
                                 -D CHAI_ENABLE_RAJA_PLUGIN=ON
                                 -D RAJA_DIR=${RAJA_DIR}/lib/cmake/raja
-				-D UMPIRE_ENABLE_C=ON
+				                -D UMPIRE_ENABLE_C=ON
                     )
 
 list(APPEND build_list chai )
@@ -1297,7 +1295,7 @@ ExternalProject_Add( mfem
                                 -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
                                 -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
                                 -D CUDA_TOOLKIT_ROOT_DIR=${CUDA_TOOLKIT_ROOT_DIR}
-                                -D CMAKE_CUDA_FLAGS:STRING=${CHAI_CUDA_FLAGS}
+                                -D CMAKE_CUDA_FLAGS:STRING=${MFEM_CUDA_FLAGS}
                                 # -D MFEM_USE_OPENMP:BOOL=${ENABLE_OPENMP}
                                 -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                                 -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1319,7 +1317,8 @@ list(APPEND build_list mfem )
 ################################
 set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
 # set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.7.0.tar.gz")
-set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-develop-2023.01.23.tar.gz")
+# set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-develop-2023.01.23.tar.gz")
+set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-develop-2023.01.27.tar.gz")
 message(STATUS "Building AXOM found at ${AXOM_URL}")
 
 if( ENABLE_MPI )
@@ -1348,7 +1347,7 @@ ExternalProject_Add( axom
                                 -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
                                 -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
                                 -D CUDA_TOOLKIT_ROOT_DIR=${CUDA_TOOLKIT_ROOT_DIR}
-                                -D CMAKE_CUDA_FLAGS:STRING=${CHAI_CUDA_FLAGS}
+                                -D CMAKE_CUDA_FLAGS:STRING=${AXOM_CUDA_FLAGS}
                                 -D ENABLE_OPENMP:BOOL=${ENABLE_OPENMP}
                                 -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                                 -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1362,7 +1361,7 @@ ExternalProject_Add( axom
                                 -D ENABLE_SPHINX=OFF
                                 -D RAJA_DIR=${RAJA_DIR}/lib/cmake/raja
                                 -D MFEM_DIR=${MFEM_DIR}/lib/cmake/mfem
-                                -D CAMP_DIR=${RAJA_DIR}/lib/cmake/camp
+                                -D CAMP_DIR=${CHAI_DIR}/lib/cmake/camp
                                 -D HDF5_DIR=${HDF5_DIR}
                                 -D CONDUIT_DIR=${CONDUIT_DIR}
                                 -D UMPIRE_DIR=${CHAI_DIR}/lib/cmake/umpire)
