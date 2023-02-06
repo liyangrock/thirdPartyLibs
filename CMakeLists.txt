@@ -1313,6 +1313,25 @@ ExternalProject_Add( mfem
 list(APPEND build_list mfem )
 
 ################################
+# LUA
+################################
+set(LUA_DIR "${CMAKE_INSTALL_PREFIX}/lua")
+set(LUA_URL "${TPL_MIRROR_DIR}/lua-5.4.4.tar.gz")
+message(STATUS "Building LUA found at ${LUA_URL}")
+
+ExternalProject_Add( lua
+                     PREFIX ${PROJECT_BINARY_DIR}/lua
+                     URL ${LUA_URL}
+                     INSTALL_DIR ${LUA_DIR}
+                     DEPENDS ${LUA_DEPENDS}
+                     CONFIGURE_COMMAND ""
+                     BUILD_COMMAND make CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+                     BUILD_IN_SOURCE true
+                     INSTALL_COMMAND make INSTALL_TOP=${LUA_DIR} install)
+
+list(APPEND build_list lua )
+
+################################
 # AXOM
 ################################
 set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
@@ -1365,7 +1384,8 @@ ExternalProject_Add( axom
                                 -D CAMP_DIR=${CHAI_DIR}/lib/cmake/camp
                                 -D HDF5_DIR=${HDF5_DIR}
                                 -D CONDUIT_DIR=${CONDUIT_DIR}
-                                -D UMPIRE_DIR=${CHAI_DIR}/lib/cmake/umpire)
+                                -D UMPIRE_DIR=${CHAI_DIR}/lib/cmake/umpire
+                                -D LUA_DIR=${LUA_DIR})
 
 list(APPEND build_list axom )
 
