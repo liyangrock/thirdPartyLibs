@@ -1267,16 +1267,22 @@ set(MFEM_DIR "${CMAKE_INSTALL_PREFIX}/mfem")
 set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.5.tar.gz")
 message(STATUS "Building MFEM found at ${MFEM_URL}")
 
-# if( ENABLE_MPI )
-#     set( MFEM_C_COMPILER ${MPI_C_COMPILER} )
-#     set( MFEM_CXX_COMPILER ${MPI_CXX_COMPILER} )
-# else()
-#     set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
-#     set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
-# endif( ENABLE_MPI )
+if( ENABLE_MPI )
+    set( MFEM_C_COMPILER ${MPI_C_COMPILER} )
+    set( MFEM_CXX_COMPILER ${MPI_CXX_COMPILER} )
+else()
+    set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
+    set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+endif( ENABLE_MPI )
 
-set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
-set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+# set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
+# set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+
+if( CMAKE_BUILD_TYPE MATCHES Release )
+    set(MFEM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-parameter -Wno-extra -Wno-cast-function-type -Wno-maybe-uninitialized -Wno-strict-aliasing")
+endif()
+
+set( MFEM_ENABLE_UMPIRE "ON" )
 
 ExternalProject_Add( mfem
                      PREFIX ${PROJECT_BINARY_DIR}/mfem
@@ -1290,23 +1296,27 @@ ExternalProject_Add( mfem
                                 -D CMAKE_CXX_COMPILER=${MFEM_CXX_COMPILER}
                                 -D CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                                 -D CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${MFEM_CXX_FLAGS_RELEASE}
                                 -D CMAKE_VERBOSE_MAKEFILE:BOOL=${CMAKE_VERBOSE_MAKEFILE}
                                 -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
                                 -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
                                 -D CUDA_TOOLKIT_ROOT_DIR=${CUDA_TOOLKIT_ROOT_DIR}
+                                # -D MFEM_USE_CUDA:BOOL=${ENABLE_CUDA}
                                 -D CMAKE_CUDA_FLAGS:STRING=${MFEM_CUDA_FLAGS}
-                                # -D MFEM_USE_OPENMP:BOOL=${ENABLE_OPENMP}
+                                -D MFEM_USE_OPENMP:BOOL=${ENABLE_OPENMP}
                                 -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                                 -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
                                 -D ENABLE_FORTRAN=${ENABLE_FORTRAN}
                                 -D ENABLE_TESTS=OFF
                                 # -D MFEM_USE_MPI=${ENABLE_MPI}
                                 # -D HYPRE_DIR=${HYPRE_DIR}
+                                # -D MFEM_USE_RAJA=ON
                                 -D RAJA_DIR=${RAJA_DIR}/lib/cmake/raja
+                                # -D RAJA_CONFIG_CMAKE=${RAJA_DIR}/lib/cmake/raja/raja-config.cmake
                                 -D HDF5_DIR=${HDF5_DIR}
                                 -D CONDUIT_DIR=${CONDUIT_DIR}
-                                -D UMPIRE_DIR=${CHAI_DIR}/lib/cmake/umpire
+                                # -D MFEM_USE_UMPIRE=${MFEM_ENABLE_UMPIRE}
+                                -D umpire_DIR=${CHAI_DIR}/lib/cmake/umpire
                                 -D METIS_DIR=${METIS_DIR}
                                 -D CALIPER_DIR=${CALIPER_DIR}/share/cmake/caliper)
 
@@ -1348,6 +1358,14 @@ else()
     set( AXOM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
 endif( ENABLE_MPI )
 
+if( ENABLE_CUDA )
+    set( AXOM_CUDA_FLAGS "--extended-lambda --expt-relaxed-constexpr" )
+endif( ENABLE_CUDA )
+
+if( CMAKE_BUILD_TYPE MATCHES Release )
+    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type")
+endif()
+
 ExternalProject_Add( axom
                      PREFIX ${PROJECT_BINARY_DIR}/axom
                      URL ${AXOM_URL}
@@ -1361,7 +1379,7 @@ ExternalProject_Add( axom
                                 -D CMAKE_CXX_COMPILER=${AXOM_CXX_COMPILER}
                                 -D CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                                 -D CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${AXOM_CXX_FLAGS_RELEASE}
                                 -D CMAKE_VERBOSE_MAKEFILE:BOOL=${CMAKE_VERBOSE_MAKEFILE}
                                 -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
                                 -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
@@ -1369,7 +1387,7 @@ ExternalProject_Add( axom
                                 -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}
                                 -D CMAKE_CUDA_FLAGS:STRING=${AXOM_CUDA_FLAGS}
                                 -D ENABLE_OPENMP:BOOL=${ENABLE_OPENMP}
-                                -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                                -D CMAKE_INSTALL_PREFIX=<INSTALL_DIR>
                                 -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
                                 -D ENABLE_FORTRAN=${ENABLE_FORTRAN}
                                 -D ENABLE_MPI=${ENABLE_MPI}
