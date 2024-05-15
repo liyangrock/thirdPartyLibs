@@ -1214,8 +1214,10 @@ endif( ENABLE_MPI )
 # set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
 # set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
 
+set(MFEM_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-extra -Wno-cast-function-type -Wno-maybe-uninitialized -Wno-strict-aliasing")
+
 if( CMAKE_BUILD_TYPE MATCHES Release )
-    set(MFEM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-parameter -Wno-extra -Wno-cast-function-type -Wno-maybe-uninitialized -Wno-strict-aliasing")
+    set(MFEM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
 set( MFEM_ENABLE_UMPIRE "ON" )
@@ -1230,7 +1232,7 @@ ExternalProject_Add( mfem
                      CMAKE_GENERATOR ${TPL_GENERATOR}
                      CMAKE_ARGS -D CMAKE_C_COMPILER=${MFEM_C_COMPILER}
                                 -D CMAKE_CXX_COMPILER=${MFEM_CXX_COMPILER}
-                                -D CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                                -D CMAKE_CXX_FLAGS=${MFEM_CXX_FLAGS}
                                 -D CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                                 -D CMAKE_CXX_FLAGS_RELEASE:STRING=${MFEM_CXX_FLAGS_RELEASE}
                                 -D CMAKE_VERBOSE_MAKEFILE:BOOL=${CMAKE_VERBOSE_MAKEFILE}
