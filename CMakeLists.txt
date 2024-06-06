@@ -234,7 +234,7 @@ list(APPEND build_list hdf5 )
 # Conduit
 ################################
 set(CONDUIT_DIR "${CMAKE_INSTALL_PREFIX}/conduit")
-set(CONDUIT_URL "${TPL_MIRROR_DIR}/conduit-0.8.2.tar.gz")
+set(CONDUIT_URL "${TPL_MIRROR_DIR}/conduit-v0.9.2.tar.gz")
 message(STATUS "Building Conduit found at ${CONDUIT_URL}")
 
 if( ${ENABLE_MPI} )
@@ -281,7 +281,7 @@ ExternalProject_Add( conduit
                                 -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                                 -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
                                 -D CMAKE_POSITION_INDEPENDENT_CODE=${CMAKE_POSITION_INDEPENDENT_CODE}
-                                -D BLT_CXX_STD:STRING=c++11
+                                -D BLT_CXX_STD:STRING=c++14
                                 )
 
 list(APPEND build_list conduit )
@@ -333,7 +333,7 @@ list(APPEND build_list silo )
 
 
 set(RAJA_DIR "${CMAKE_INSTALL_PREFIX}/raja")
-set(RAJA_URL "${TPL_MIRROR_DIR}/RAJA-v2023.06.1.tar.gz")
+set(RAJA_URL "${TPL_MIRROR_DIR}/RAJA-v2024.02.1.tar.gz")
 
 
 message(STATUS "Building RAJA found at ${RAJA_URL}")
@@ -1200,7 +1200,7 @@ list(APPEND build_list fmt)
 # MFEM
 ################################
 set(MFEM_DIR "${CMAKE_INSTALL_PREFIX}/mfem")
-set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.5.tar.gz")
+set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.7.tar.gz")
 message(STATUS "Building MFEM found at ${MFEM_URL}")
 
 if( ENABLE_MPI )
@@ -1283,7 +1283,7 @@ list(APPEND build_list lua )
 # AXOM
 ################################
 set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
-set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.8.0.zip")
+set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.9.0.tar.gz")
 message(STATUS "Building AXOM found at ${AXOM_URL}")
 
 if( ENABLE_MPI )
@@ -1301,14 +1301,15 @@ if( ENABLE_CUDA )
 endif( ENABLE_CUDA )
 
 if( CMAKE_BUILD_TYPE MATCHES Release )
-    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type -Wno-cast-qual -Wno-shadow")
+    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type -Wno-cast-qual -Wno-shadow -Wno-maybe-uninitialized -Wno-array-bounds -Wno-switch -Wno-unused-parameter -Wno-unused-variable -Wno-alloc-size-larger-than")
 endif()
 
 ExternalProject_Add( axom
                      PREFIX ${PROJECT_BINARY_DIR}/axom
                      URL ${AXOM_URL}
                      SOURCE_SUBDIR "src"
-                     INSTALL_DIR ${AXOM_DIR}
+                     INSTALL_DIR ${AXOM_DIR}                     
+                     PATCH_COMMAND patch -p0 < ${TPL_MIRROR_DIR}/Axom-v0.9.0.patch
                      DEPENDS ${AXOM_DEPENDS}
                      BUILD_COMMAND ${TPL_BUILD_COMMAND}
                      INSTALL_COMMAND ${TPL_INSTALL_COMMAND}
