@@ -1,0 +1,11 @@
+--- src/axom/spin/policy/UniformGridStorage.hpp	2024-03-21 04:56:04.000000000 +0800
++++ src/axom/spin/policy/UniformGridStorage1.hpp	2024-06-05 14:40:48.893407600 +0800
+@@ -73,7 +73,7 @@
+     {
+       m_bins.emplace_back(binSizes[i], binSizes[i], m_allocatorID);
+     }
+-  };
++  }
+ 
+   void insert(IndexType gridIdx, const T& elem)
+   {

@@ -1199,7 +1199,7 @@ list(APPEND build_list fmt)
 # MFEM
 ################################
 set(MFEM_DIR "${CMAKE_INSTALL_PREFIX}/mfem")
-set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.5.tar.gz")
+set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.7.tar.gz")
 message(STATUS "Building MFEM found at ${MFEM_URL}")
 
 if( ENABLE_MPI )
@@ -1282,7 +1282,7 @@ list(APPEND build_list lua )
 # AXOM
 ################################
 set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
-set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.8.0.zip")
+set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.9.0.tar.gz")
 message(STATUS "Building AXOM found at ${AXOM_URL}")
 
 if( ENABLE_MPI )
@@ -1300,14 +1300,15 @@ if( ENABLE_CUDA )
 endif( ENABLE_CUDA )
 
 if( CMAKE_BUILD_TYPE MATCHES Release )
-    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type -Wno-cast-qual -Wno-shadow")
+    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type -Wno-cast-qual -Wno-shadow -Wno-maybe-uninitialized -Wno-array-bounds -Wno-switch -Wno-unused-parameter -Wno-unused-variable -Wno-alloc-size-larger-than")
 endif()
 
 ExternalProject_Add( axom
                      PREFIX ${PROJECT_BINARY_DIR}/axom
                      URL ${AXOM_URL}
                      SOURCE_SUBDIR "src"
-                     INSTALL_DIR ${AXOM_DIR}
+                     INSTALL_DIR ${AXOM_DIR}                     
+                     PATCH_COMMAND patch -p0 < ${TPL_MIRROR_DIR}/Axom-v0.9.0.patch
                      DEPENDS ${AXOM_DEPENDS}
                      BUILD_COMMAND ${TPL_BUILD_COMMAND}
                      INSTALL_COMMAND ${TPL_INSTALL_COMMAND}
