@@ -1282,7 +1282,7 @@ list(APPEND build_list lua )
 # AXOM
 ################################
 set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
-set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.9.0.tar.gz")
+set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.10.1.tar.gz")
 message(STATUS "Building AXOM found at ${AXOM_URL}")
 
 if( ENABLE_MPI )
@@ -1308,7 +1308,7 @@ ExternalProject_Add( axom
                      URL ${AXOM_URL}
                      SOURCE_SUBDIR "src"
                      INSTALL_DIR ${AXOM_DIR}                     
-                     PATCH_COMMAND patch -p0 < ${TPL_MIRROR_DIR}/Axom-v0.9.0.patch
+                     PATCH_COMMAND patch -p0 < ${TPL_MIRROR_DIR}/Axom-v0.10.1.patch
                      DEPENDS ${AXOM_DEPENDS}
                      BUILD_COMMAND ${TPL_BUILD_COMMAND}
                      INSTALL_COMMAND ${TPL_INSTALL_COMMAND}
