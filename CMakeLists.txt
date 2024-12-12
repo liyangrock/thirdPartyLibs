@@ -52,6 +52,7 @@ option( ENABLE_SCOTCH "" ON )
 option( ENABLE_SUITESPARSE "" ON )
 option( ENABLE_VTK "" ON )
 option( ENABLE_VTK_WRAP_PYTHON "" OFF )
+option( ENABLE_AXOM "" ON )
 
 option( ENABLE_NINJA "" OFF )
 
@@ -1227,6 +1228,158 @@ ExternalProject_Add( fmt
 
 list(APPEND build_list fmt)
 
+
+################################
+# MFEM
+################################
+set(MFEM_DIR "${CMAKE_INSTALL_PREFIX}/mfem")
+set(MFEM_URL "${TPL_MIRROR_DIR}/mfem-4.7.tar.gz")
+message(STATUS "Building MFEM found at ${MFEM_URL}")
+
+if( ENABLE_MPI )
+    set( MFEM_C_COMPILER ${MPI_C_COMPILER} )
+    set( MFEM_CXX_COMPILER ${MPI_CXX_COMPILER} )
+else()
+    set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
+    set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+endif( ENABLE_MPI )
+
+# set( MFEM_C_COMPILER ${CMAKE_C_COMPILER} )
+# set( MFEM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+
+set(MFEM_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-extra -Wno-cast-function-type -Wno-uninitialized -Wno-strict-aliasing")
+
+if( CMAKE_BUILD_TYPE MATCHES Release )
+    set(MFEM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+endif()
+
+set( MFEM_ENABLE_UMPIRE "ON" )
+
+ExternalProject_Add( mfem
+                     PREFIX ${PROJECT_BINARY_DIR}/mfem
+                     URL ${MFEM_URL}
+                     INSTALL_DIR ${MFEM_DIR}
+                     DEPENDS ${MFEM_DEPENDS}
+                     BUILD_COMMAND ${TPL_BUILD_COMMAND}
+                     INSTALL_COMMAND ${TPL_INSTALL_COMMAND}
+                     CMAKE_GENERATOR ${TPL_GENERATOR}
+                     CMAKE_ARGS -D CMAKE_C_COMPILER=${MFEM_C_COMPILER}
+                                -D CMAKE_CXX_COMPILER=${MFEM_CXX_COMPILER}
+                                -D CMAKE_CXX_FLAGS=${MFEM_CXX_FLAGS}
+                                -D CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${MFEM_CXX_FLAGS_RELEASE}
+                                -D CMAKE_VERBOSE_MAKEFILE:BOOL=${CMAKE_VERBOSE_MAKEFILE}
+                                -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
+                                -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
+                                -D CUDA_TOOLKIT_ROOT_DIR=${CUDA_TOOLKIT_ROOT_DIR}
+                                # -D MFEM_USE_CUDA:BOOL=${ENABLE_CUDA}
+                                -D CMAKE_CUDA_FLAGS:STRING=${MFEM_CUDA_FLAGS}
+                                -D MFEM_USE_OPENMP:BOOL=${ENABLE_OPENMP}
+                                -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                                -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                                -D ENABLE_FORTRAN=${ENABLE_FORTRAN}
+                                -D ENABLE_TESTS=OFF
+                                # -D MFEM_USE_MPI=${ENABLE_MPI}
+                                # -D HYPRE_DIR=${HYPRE_DIR}
+                                # -D MFEM_USE_RAJA=ON
+                                -D RAJA_DIR=${RAJA_DIR}/lib/cmake/raja
+                                # -D RAJA_CONFIG_CMAKE=${RAJA_DIR}/lib/cmake/raja/raja-config.cmake
+                                -D HDF5_DIR=${HDF5_DIR}
+                                -D CONDUIT_DIR=${CONDUIT_DIR}
+                                # -D MFEM_USE_UMPIRE=${MFEM_ENABLE_UMPIRE}
+                                -D umpire_DIR=${CHAI_DIR}/lib/cmake/umpire
+                                -D METIS_DIR=${METIS_DIR}
+                                -D CALIPER_DIR=${CALIPER_DIR}/share/cmake/caliper)
+
+list(APPEND build_list mfem )
+
+################################
+# LUA
+################################
+set(LUA_DIR "${CMAKE_INSTALL_PREFIX}/lua")
+set(LUA_URL "${TPL_MIRROR_DIR}/lua-5.4.4.tar.gz")
+message(STATUS "Building LUA found at ${LUA_URL}")
+
+ExternalProject_Add( lua
+                     PREFIX ${PROJECT_BINARY_DIR}/lua
+                     URL ${LUA_URL}
+                     INSTALL_DIR ${LUA_DIR}
+                     DEPENDS ${LUA_DEPENDS}
+                     CONFIGURE_COMMAND ""
+                     BUILD_COMMAND make CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+                     BUILD_IN_SOURCE true
+                     INSTALL_COMMAND make INSTALL_TOP=${LUA_DIR} install)
+
+list(APPEND build_list lua )
+
+################################
+# AXOM
+################################
+set(AXOM_DIR "${CMAKE_INSTALL_PREFIX}/axom")
+set(AXOM_URL "${TPL_MIRROR_DIR}/Axom-v0.10.1.tar.gz")
+message(STATUS "Building AXOM found at ${AXOM_URL}")
+
+if( ENABLE_MPI )
+    set( AXOM_C_COMPILER ${MPI_C_COMPILER} )
+    set( AXOM_CXX_COMPILER ${MPI_CXX_COMPILER} )
+else()
+    set( AXOM_C_COMPILER ${CMAKE_C_COMPILER} )
+    set( AXOM_CXX_COMPILER ${CMAKE_CXX_COMPILER} )
+endif( ENABLE_MPI )
+
+if( ENABLE_CUDA )
+    set( AXOM_CUDA_FLAGS "--extended-lambda" )
+    set( AXOM_USE_UMPIRE "ON" )
+    set( UMPIRE_DIR "${CHAI_DIR}/lib/cmake/umpire" )
+endif( ENABLE_CUDA )
+
+if( CMAKE_BUILD_TYPE MATCHES Release )
+    set(AXOM_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-cast-function-type -Wno-cast-qual -Wno-shadow -Wno-uninitialized -Wno-array-bounds -Wno-switch -Wno-unused-parameter -Wno-unused-variable -Wno-frame-larger-than -Wno-deprecated-copy -Wno-unused-private-field")
+endif()
+
+ExternalProject_Add( axom
+                     PREFIX ${PROJECT_BINARY_DIR}/axom
+                     URL ${AXOM_URL}
+                     SOURCE_SUBDIR "src"
+                     INSTALL_DIR ${AXOM_DIR}                     
+                     PATCH_COMMAND patch -p0 < ${TPL_MIRROR_DIR}/Axom-v0.10.1.patch
+                     DEPENDS ${AXOM_DEPENDS}
+                     BUILD_COMMAND ${TPL_BUILD_COMMAND}
+                     INSTALL_COMMAND ${TPL_INSTALL_COMMAND}
+                     CMAKE_GENERATOR ${TPL_GENERATOR}
+                     CMAKE_ARGS -D CMAKE_C_COMPILER=${AXOM_C_COMPILER}
+                                -D CMAKE_CXX_COMPILER=${AXOM_CXX_COMPILER}
+                                -D CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} 
+                                -D CMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                                -D CMAKE_CXX_FLAGS_RELEASE:STRING=${AXOM_CXX_FLAGS_RELEASE}
+                                -D CMAKE_VERBOSE_MAKEFILE:BOOL=${CMAKE_VERBOSE_MAKEFILE}
+                                -D ENABLE_CUDA:BOOL=${ENABLE_CUDA}
+                                -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}
+                                -D CMAKE_CUDA_FLAGS=${AXOM_CUDA_FLAGS}
+                                -D CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
+                                -D AXOM_ENABLE_CUDA:BOOL=${ENABLE_CUDA}
+                                -D CUDA_TOOLKIT_ROOT_DIR=${CUDA_TOOLKIT_ROOT_DIR}
+                                -D ENABLE_OPENMP:BOOL=${ENABLE_OPENMP}
+                                -D CMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+                                -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                                -D ENABLE_FORTRAN=${ENABLE_FORTRAN}
+                                -D ENABLE_MPI=${ENABLE_MPI}
+                                -D AXOM_ENABLE_MPI=${ENABLE_MPI}
+                                -D ENABLE_TESTS=OFF
+                                -D ENABLE_BENCHMARKS=OFF
+                                -D ENABLE_EXAMPLES=OFF
+                                -D ENABLE_DOCS=OFF
+                                -D ENABLE_DOXYGEN=OFF
+                                -D ENABLE_SPHINX=OFF
+                                -D UMPIRE_DIR=${UMPIRE_DIR}
+                                -D RAJA_DIR=${RAJA_DIR}/lib/cmake/raja
+                                -D MFEM_DIR=${MFEM_DIR}/lib/cmake/mfem
+                                -D CAMP_DIR=${CHAI_DIR}/lib/cmake/camp
+                                -D HDF5_DIR=${HDF5_DIR}
+                                -D CONDUIT_DIR=${CONDUIT_DIR}
+                                -D LUA_DIR=${LUA_DIR})
+
+list(APPEND build_list axom )
 
 ################################
 # Create target that builds all dependencies
