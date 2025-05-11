@@ -738,7 +738,7 @@ list(APPEND build_list metis )
 ################################
 if( ENABLE_MPI )
   set(SUPERLU_DIR "${CMAKE_INSTALL_PREFIX}/superlu_dist")
-  set(SUPERLU_URL "${TPL_MIRROR_DIR}/superlu_dist-0f6efc3.tar.gz")
+  set(SUPERLU_URL "${TPL_MIRROR_DIR}/superlu_dist-9.0.0.tar.gz")
 
   if ( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 16.0 )
     set(SUPERLU_C_FLAGS "-fPIC ${C_FLAGS_NO_WARNINGS}")
